@@ -1,0 +1,14 @@
+{
+  "name": "demo",
+  "version": "1.0.0",
+  "description": "this is a demo",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "My Phung Tieu",
+  "license": "ISC",
+  "dependencies": {
+    "request": "^2.88.2"
+  }
+}
