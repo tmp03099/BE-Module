@@ -20,6 +20,25 @@ app.get("/", function (req, res) {
   res.send(plants);
 });
 
+app.get("/awesome", (req, res) => {
+  res.send(`
+    <h1>Plants are awesome!</h1>
+    <img src="https://static.boredpanda.com/blog/wp-content/uuuploads/plant-sculptures-mosaicultures-internationales-de-montreal/plant-sculptures-mosaicultures-internationales-de-montreal-14.jpg" >
+  `);
+});
+
+app.get("/howdy/:firstname", (req, res) => {
+  console.log(req.params);
+  console.log(req.query);
+  res.send(`Hello ${req.query.title}, ${req.params.firstname}`);
+});
+
+app.get("/hello/:firstname/:lastname", (req, res) => {
+  console.log(req.params);
+  const { firstname, lastname } = req.params;
+  res.send(`Hello ${firstname} ${lastname}: ${req.query.year}`);
+});
+
 app.get("/:indexOfPlantArray", (req, res) => {
   console.log(req.params);
   console.log(plants[req.params.indexOfPlantArray]);
