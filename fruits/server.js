@@ -1,8 +1,11 @@
+require("dotenv").config(); // call and configure your dotenv package
 //Require modules
 const express = require("express");
+const mongoose = require("mongoose");
 
 //import fruits Data
 const fruits = require("./models/fruits");
+const Fruit = require("./models/Fruit");
 
 //create the express app
 const app = express();
@@ -33,7 +36,10 @@ app.get("/", (req, res) => {
 
 app.get("/fruits", (req, res) => {
   // res.send(fruits);
-  res.render("Index", { fruits: fruits });
+  // res.render("Index", { fruits: fruits });
+  Fruit.find({}, (error, allFruits) => {
+    res.render("fruits/Index", { fruits: allFruits });
+  });
 });
 
 /**
@@ -45,8 +51,12 @@ app.post("/fruits", (req, res) => {
   } else {
     req.body.readyToEat = false;
   }
-  fruits.push(req.body);
-  res.redirect("./fruits");
+  // fruits.push(req.body);
+  //* send to MongoDB
+  Fruit.create(req.body, (error, createdFruit) => {
+    // res.send(createdFruit);
+    res.redirect("/fruits");
+  });
 });
 
 /**
@@ -54,17 +64,20 @@ app.post("/fruits", (req, res) => {
  */
 
 app.get("/fruits/new", (req, res) => {
-  res.render("New");
+  res.render("fruits/New");
 });
 
 /**
  * Show route: (returns an single fruit)
  */
 
-app.get("/fruits/:indexOfFruitArray", (req, res) => {
+app.get("/fruits/:id", (req, res) => {
   console.log(req.params);
   // res.send(fruits[req.params.indexOfFruitArray]);
-  res.render("Show", { fruit: fruits[req.params.indexOfFruitArray] });
+  // res.render("Show", { fruit: fruits[req.params.indexOfFruitArray] });
+  Fruit.findById(req.params.id, (error, foundFruit) => {
+    res.render("fruits/Show", { fruit: foundFruit });
+  });
 });
 
 //if none of the routes matches the request will show 404 page
@@ -73,6 +86,17 @@ app.get("*", (req, res) => {
   res.render("404");
 });
 
-app.listen(port, function () {
+app.listen(3000, function () {
   console.log(`Listening on port ${port}`);
+
+  //get the warning message out
+  mongoose.set("strictQuery", true);
+  //! connect to mongodbB
+  mongoose.connect(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  });
+  mongoose.connection.once("open", () => {
+    console.log("Connected to MongoDB!");
+  });
 });
