@@ -2,6 +2,7 @@ require("dotenv").config(); // call and configure your dotenv package
 //Require modules
 const express = require("express");
 const mongoose = require("mongoose");
+const methodOverride = require("method-override");
 
 //import fruits Data
 const fruits = require("./models/fruits");
@@ -24,6 +25,8 @@ app.use((req, res, next) => {
 });
 //parses the data fromt the request
 app.use(express.urlencoded({ extended: false }));
+// override using a query value
+app.use(methodOverride("_method"));
 
 //? Create route
 app.get("/", (req, res) => {
@@ -67,6 +70,62 @@ app.get("/fruits/new", (req, res) => {
   res.render("fruits/New");
 });
 
+//* Return the edit form
+app.get("/fruits/:id/edit", (req, res) => {
+  Fruit.findById(req.params.id, (error, foundFruit) => {
+    if (!error) {
+      res.render("fruits/Edit", { fruit: foundFruit });
+    } else {
+      res.send({ msg: error.message });
+    }
+  });
+});
+
+//* Handle the edit form data
+app.put("/fruits/:id", (req, res) => {
+  if (req.body.readyToEat === "on") {
+    req.body.readyToEat = true;
+  } else {
+    req.body.readyToEat = false;
+  }
+
+  Fruit.findByIdAndUpdate(
+    req.params.id,
+    req.body,
+    { new: true },
+    (error, updatedFruit) => {
+      // res.send(updatedFruit);
+      res.redirect(`/fruits/${req.params.id}`);
+    }
+  );
+});
+
+//* Seed Route
+app.get("/fruits/seed", (req, res) => {
+  Fruit.create(
+    [
+      {
+        name: "grapefruit",
+        color: "pink",
+        readyToEat: true,
+      },
+      {
+        name: "grape",
+        color: "purple",
+        readyToEat: false,
+      },
+      {
+        name: "avocado",
+        color: "green",
+        readyToEat: true,
+      },
+    ],
+    (err, data) => {
+      res.redirect("/fruits");
+    }
+  );
+});
+
 /**
  * Show route: (returns an single fruit)
  */
@@ -77,6 +136,14 @@ app.get("/fruits/:id", (req, res) => {
   // res.render("Show", { fruit: fruits[req.params.indexOfFruitArray] });
   Fruit.findById(req.params.id, (error, foundFruit) => {
     res.render("fruits/Show", { fruit: foundFruit });
+  });
+});
+
+//! DELETE FRUIT
+app.delete("/fruits/:id", (req, res) => {
+  Fruit.findByIdAndRemove(req.params.id, (error, deletedFruit) => {
+    // res.send(deletedFruit)
+    res.redirect("/fruits");
   });
 });
 
