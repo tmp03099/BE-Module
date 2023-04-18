@@ -27,6 +27,7 @@ app.use((req, res, next) => {
 app.use(express.urlencoded({ extended: false }));
 // override using a query value
 app.use(methodOverride("_method"));
+app.use(express.static("public"));
 
 //? Create route
 app.get("/", (req, res) => {
